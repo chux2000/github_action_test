@@ -43,4 +43,4 @@ jobs:
         run: exit 1
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run: teraform apply -auto-approve
+        run: terraform apply -auto-approve
