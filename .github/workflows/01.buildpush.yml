@@ -16,7 +16,6 @@ jobs:
           tags: latest
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-  
   # 02 - crear VM en upcloud con terraform
   build-vm-upcloud:
     name: Build the vm in upcloud that host proyect
