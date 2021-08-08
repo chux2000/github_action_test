@@ -13,14 +13,34 @@ jobs:
         with: 
           image: chux2000/github_action_test
           registry: docker.io
+          tags: latest
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      # uses: docker/build-push-action@v2
-      # with:
-      #   username: ${{ secrets.DOCKER_USERNAME }}
-      #   password: ${{ secrets.DOCKER_PASSWORD }}
-            # repository: ${{ github.repository }}
-            # tag_with_ref: true
-            # tag_with_sha: true
-            # tags: ${{ github.sha }}
+  
   # 02 - crear VM en upcloud con terraform
+  build-vm-upcloud:
+    name: Build the vm in upcloud that host proyect
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    env:
+      UPCLOUD_USERNAME: ${{secrets.UPCLOUD_USERNAME}}
+      UPCLOUD_PASSWORD: ${{secrets.UPCLOUD_PASSWORD}}
+    steps:
+      - name: CheckOut
+        uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+       -name: Terraform Init
+        id: init
+        run: terraform init
+      - name: Terraform Plan
+        id: plan
+        if: github.event_name =='push'
+        run: terraform plan -no-color
+        continue-on-error: true
+      - name: Terraform Plan Status
+        if: steps.plan.outcome=='failure'
+        run: exit 1
+      - name: Terraform Apply
+        if github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: teraform apply -auto-approve
